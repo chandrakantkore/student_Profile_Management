@@ -56,7 +56,7 @@
   </div>
 
   <script>
-    const role = localStorage.getItem("role");
+    const role = localStorage.getItem("role") || "guest";
     const formContainer = document.getElementById("hostel-form-container");
     const actionsHeader = document.getElementById("actions-header");
 
@@ -83,6 +83,7 @@
           <td class="p-2">${entry.room}</td>
           <td class="p-2">${entry.checkin}</td>
           <td class="p-2">${entry.checkout}</td>`;
+
         if (role === "faculty" || role === "student") {
           row += `<td class="p-2">
             <button onclick="editEntry(${index})" class="text-blue-600">Edit</button>
@@ -163,27 +164,24 @@
         const month = new Date(e.checkin).toLocaleString('default', { month: 'short', year: 'numeric' });
         monthMap[month] = (monthMap[month] || 0) + 1;
       });
-      const chartData = {
-        labels: Object.keys(monthMap),
-        datasets: [{
-          label: 'Monthly Check-ins',
-          data: Object.values(monthMap),
-          backgroundColor: 'rgba(54, 162, 235, 0.6)'
-        }]
-      };
       new Chart(ctx, {
         type: 'bar',
-        data: chartData,
+        data: {
+          labels: Object.keys(monthMap),
+          datasets: [{
+            label: 'Monthly Check-ins',
+            data: Object.values(monthMap),
+            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+          }]
+        },
         options: { responsive: true, plugins: { legend: { display: false } } }
       });
     }
 
     document.getElementById("search-bar").addEventListener("input", function () {
       const searchVal = this.value.toLowerCase();
-      const rows = document.querySelectorAll("#hostel-body tr");
-      rows.forEach(row => {
-        const match = row.innerText.toLowerCase().includes(searchVal);
-        row.style.display = match ? "" : "none";
+      document.querySelectorAll("#hostel-body tr").forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(searchVal) ? "" : "none";
       });
     });
 
@@ -195,9 +193,7 @@
         const lines = event.target.result.split("\n").slice(1);
         lines.forEach(line => {
           const [studentId, room, checkin, checkout] = line.split(",");
-          if (studentId && room && checkin && checkout) {
-            hostelData.push({ studentId, room, checkin, checkout });
-          }
+          if (studentId && room && checkin && checkout) hostelData.push({ studentId, room, checkin, checkout });
         });
         updateTable();
       };
@@ -212,5 +208,4 @@
     updateTable();
   </script>
 </body>
-
 </html>
