@@ -1,187 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Online Payment Gateway</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/jsbarcode"></script>
-  <style>
-    body { background-color: #f8f9fa; padding: 20px; }
-    .barcode { margin-top: 10px; }
-    .hidden { display: none; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College Management System</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsbarcode"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<style>
+body { background-color: #f8f9fa; padding:20px; }
+.nav-tabs .nav-link { cursor:pointer; }
+.table th { cursor:pointer; }
+.tab-content { margin-top:20px; }
+.disabled-overlay {
+  position:absolute;top:0;left:0;right:0;bottom:0;
+  background:rgba(255,255,255,0.7);z-index:10;
+  text-align:center;padding-top:50px;font-weight:bold;color:red;
+}
+</style>
 </head>
 <body>
 <div class="container">
-  <h2 class="text-center mb-4">Online Payment Gateway</h2>
+<h2 class="text-center mb-4">College Management System</h2>
 
-  <form id="payment-form" class="border p-4 bg-white rounded shadow-sm mb-4">
-    <div class="row g-3">
-      <div class="col-md-4">
-        <label for="student-id" class="form-label">Student ID</label>
-        <input type="text" class="form-control" id="student-id" required>
+<ul class="nav nav-tabs" id="cmsTabs">
+  <li class="nav-item"><a class="nav-link active" data-tab="fees">Fees</a></li>
+  <li class="nav-item"><a class="nav-link" data-tab="scholarship">Scholarship</a></li>
+  <li class="nav-item"><a class="nav-link" data-tab="results">Results</a></li>
+  <li class="nav-item"><a class="nav-link" data-tab="payments">Payments</a></li>
+</ul>
+
+<div class="tab-content">
+  <!-- Fees Module -->
+  <div class="tab-pane active" id="fees">
+    <form id="fees-form" class="border p-3 bg-white rounded shadow-sm mb-3">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label>Student ID</label>
+          <input type="text" class="form-control" id="fee-student-id" required>
+        </div>
+        <div class="col-md-6">
+          <label>Amount (₹)</label>
+          <input type="number" class="form-control" id="fee-amount" required>
+        </div>
       </div>
-      <div class="col-md-4">
-        <label for="amount" class="form-label">Amount (₹)</label>
-        <input type="number" class="form-control" id="amount" required>
+      <button class="btn btn-primary mt-2">Submit Fee</button>
+    </form>
+    <input type="text" class="form-control mb-2" id="fee-search" placeholder="Search Fee">
+    <table class="table table-bordered" id="fee-table">
+      <thead class="table-dark">
+        <tr><th onclick="sortTable('fee-table',0)">Student ID</th><th onclick="sortTable('fee-table',1)">Amount</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button class="btn btn-success" onclick="exportTableCSV('fee-table','fees.csv')">Export CSV</button>
+  </div>
+
+  <!-- Scholarship Module -->
+  <div class="tab-pane" id="scholarship">
+    <form id="scholarship-form" class="border p-3 bg-white rounded shadow-sm mb-3">
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label>Scholarship Name</label>
+          <input type="text" class="form-control" id="scholarship-name" required>
+        </div>
+        <div class="col-md-6">
+          <label>Amount (₹)</label>
+          <input type="number" class="form-control" id="scholarship-amount" required>
+        </div>
       </div>
-      <div class="col-md-4">
-        <label for="payment-method" class="form-label">Payment Method</label>
-        <select id="payment-method" class="form-select" required>
-          <option value="Credit Card">Credit Card</option>
-          <option value="Debit Card">Debit Card</option>
-          <option value="Net Banking">Net Banking</option>
-          <option value="UPI">UPI</option>
-        </select>
+      <button class="btn btn-primary mt-2">Add Scholarship</button>
+    </form>
+    <input type="text" class="form-control mb-2" id="scholarship-search" placeholder="Search Scholarship">
+    <table class="table table-bordered" id="scholarship-table">
+      <thead class="table-dark">
+        <tr><th onclick="sortTable('scholarship-table',0)">Name</th><th onclick="sortTable('scholarship-table',1)">Amount</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button class="btn btn-success" onclick="exportTableCSV('scholarship-table','scholarships.csv')">Export CSV</button>
+  </div>
+
+  <!-- Results Module -->
+  <div class="tab-pane" id="results">
+    <form id="result-form" class="border p-3 bg-white rounded shadow-sm mb-3">
+      <div class="row g-3">
+        <div class="col-md-4"><label>Student ID</label><input type="text" class="form-control" id="result-student-id" required></div>
+        <div class="col-md-4"><label>Subject</label><input type="text" class="form-control" id="result-subject" required></div>
+        <div class="col-md-4"><label>Marks Obtained/Total</label><input type="text" class="form-control" id="result-marks" placeholder="e.g. 42/50" required></div>
       </div>
-    </div>
-    <button type="submit" class="btn btn-success mt-3">Make Payment</button>
-    <svg id="barcode" class="barcode hidden"></svg>
-  </form>
+      <button class="btn btn-primary mt-2">Add Result</button>
+    </form>
+    <input type="text" class="form-control mb-2" id="result-search" placeholder="Search Results">
+    <table class="table table-bordered" id="result-table">
+      <thead class="table-dark">
+        <tr><th onclick="sortTable('result-table',0)">Student ID</th>
+            <th onclick="sortTable('result-table',1)">Subject</th>
+            <th>Marks</th><th>Percentage</th><th>Status</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button class="btn btn-success" onclick="exportTableCSV('result-table','results.csv')">Export CSV</button>
+    <div id="result-chart" style="height:300px;margin-top:20px;"></div>
+  </div>
 
-  <input type="text" class="form-control mb-3" id="search-input" placeholder="Search by Student ID or Method">
-
-  <table class="table table-bordered table-striped" id="payment-table">
-    <thead class="table-dark">
-      <tr>
-        <th onclick="sortTable(0)">Student ID</th>
-        <th onclick="sortTable(1)">Amount (₹)</th>
-        <th onclick="sortTable(2)">Method</th>
-        <th>Barcode Ref</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <button class="btn btn-primary mb-3" onclick="exportToCSV()">Export to CSV</button>
-
-  <canvas id="paymentChart" height="100"></canvas>
+  <!-- Payments Module -->
+  <div class="tab-pane" id="payments">
+    <form id="payment-form" class="border p-3 bg-white rounded shadow-sm mb-3">
+      <div class="row g-3">
+        <div class="col-md-4"><label>Student ID</label><input type="text" class="form-control" id="pay-student-id" required></div>
+        <div class="col-md-4"><label>Amount (₹)</label><input type="number" class="form-control" id="pay-amount" required></div>
+        <div class="col-md-4"><label>Method</label>
+          <select class="form-select" id="pay-method" required>
+            <option>Credit Card</option><option>Debit Card</option><option>Net Banking</option><option>UPI</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn btn-primary mt-2">Make Payment</button>
+    </form>
+    <input type="text" class="form-control mb-2" id="pay-search" placeholder="Search Payments">
+    <table class="table table-bordered" id="payment-table">
+      <thead class="table-dark">
+        <tr><th onclick="sortTable('payment-table',0)">Student ID</th>
+            <th onclick="sortTable('payment-table',1)">Amount</th>
+            <th onclick="sortTable('payment-table',2)">Method</th><th>Barcode</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <button class="btn btn-success" onclick="exportTableCSV('payment-table','payments.csv')">Export CSV</button>
+    <canvas id="payment-chart" height="100" style="margin-top:20px;"></canvas>
+  </div>
+</div>
 </div>
 
 <script>
-  let chartInstance = null;
-  const paymentData = {};
-
-  document.getElementById("payment-form").addEventListener("submit", function (e) {
-    e.preventDefault();
-    const studentId = document.getElementById("student-id").value.trim();
-    const amount = parseFloat(document.getElementById("amount").value).toFixed(2);
-    const method = document.getElementById("payment-method").value;
-    const barcodeValue = `REF-${Date.now()}`;
-
-    const tableBody = document.querySelector("#payment-table tbody");
-    const newRow = tableBody.insertRow();
-    newRow.innerHTML = `
-      <td>${studentId}</td>
-      <td>${amount}</td>
-      <td>${method}</td>
-      <td><svg class="barcode" id="barcode-${barcodeValue}"></svg></td>
-    `;
-    JsBarcode(`#barcode-${barcodeValue}`, barcodeValue, {
-      format: "CODE128",
-      width: 2,
-      height: 30,
-      displayValue: false
-    });
-
-    paymentData[method] = (paymentData[method] || 0) + parseFloat(amount);
-    updateChart();
-    this.reset();
+document.querySelectorAll('.nav-link').forEach(link=>{
+  link.addEventListener('click',()=>{
+    document.querySelectorAll('.tab-pane').forEach(tab=>tab.classList.remove('active'));
+    document.querySelectorAll('.nav-link').forEach(l=>l.classList.remove('active'));
+    document.getElementById(link.dataset.tab).classList.add('active');
+    link.classList.add('active');
   });
+});
 
-  function sortTable(n) {
-    const table = document.getElementById("payment-table");
-    let rows, switching = true, dir = "asc", switchcount = 0;
-    while (switching) {
-      switching = false;
-      rows = table.rows;
-      for (let i = 1; i < (rows.length - 1); i++) {
-        let shouldSwitch = false;
-        let x = rows[i].getElementsByTagName("TD")[n];
-        let y = rows[i + 1].getElementsByTagName("TD")[n];
-        if ((dir === "asc" && x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) ||
-            (dir === "desc" && x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase())) {
-          shouldSwitch = true;
-          break;
-        }
-      }
-      if (shouldSwitch) {
-        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-        switching = true;
-        switchcount++;
-      } else if (switchcount === 0 && dir === "asc") {
-        dir = "desc";
-        switching = true;
-      }
-    }
-  }
+// Utility: sort table
+function sortTable(tableId,col){const table=document.getElementById(tableId);let switching=true,dir='asc',switchcount=0;while(switching){switching=false;let rows=table.rows;for(let i=1;i<rows.length-1;i++){let shouldSwitch=false;x=rows[i].getElementsByTagName("TD")[col];y=rows[i+1].getElementsByTagName("TD")[col];if(dir==='asc'?x.innerText.toLowerCase()>y.innerText.toLowerCase():x.innerText.toLowerCase()<y.innerText.toLowerCase()){shouldSwitch=true;break;}if(shouldSwitch){rows[i].parentNode.insertBefore(rows[i+1],rows[i]);switching=true;switchcount++;} else if(switchcount==0 && dir==='asc'){dir='desc';switching=true;}}}
+}
 
-  document.getElementById("search-input").addEventListener("input", function () {
-    const searchTerm = this.value.toLowerCase();
-    const rows = document.querySelectorAll("#payment-table tbody tr");
-    rows.forEach(row => {
-      const cells = row.getElementsByTagName("td");
-      const match = [...cells].some(td => td.innerText.toLowerCase().includes(searchTerm));
-      row.style.display = match ? "" : "none";
-    });
-  });
+// Utility: export table CSV
+function exportTableCSV(tableId,filename){const rows=document.querySelectorAll(`#${tableId} tr`);let csv='';rows.forEach(row=>{const cols=row.querySelectorAll('td,th');csv+=[...cols].map(c=>`"${c.innerText}"`).join(',')+'\n';});const blob=new Blob([csv],{type:'text/csv'});const link=document.createElement('a');link.href=URL.createObjectURL(blob);link.download=filename;link.click();}
 
-  function exportToCSV() {
-    const rows = document.querySelectorAll("table tr");
-    let csv = "";
-    rows.forEach(row => {
-      const cols = row.querySelectorAll("td, th");
-      const data = [...cols].map(col => `"${col.innerText}"`).join(",");
-      csv += data + "\n";
-    });
-    const blob = new Blob([csv], {type: "text/csv"});
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = "payment_data.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
+// Role-based access
+const role=localStorage.getItem('userRole')||'student';
+document.querySelectorAll('form').forEach(f=>{if(!['admin','faculty'].includes(role)){f.querySelectorAll('input,select,button').forEach(el=>el.disabled=true);const notice=document.createElement('p');notice.textContent='View-only access.';notice.style.color='red';f.appendChild(notice);}});
 
-  function updateChart() {
-    const ctx = document.getElementById('paymentChart').getContext('2d');
-    const labels = Object.keys(paymentData);
-    const data = Object.values(paymentData);
+// Fees
+document.getElementById('fees-form').addEventListener('submit',function(e){
+e.preventDefault();
+const id=document.getElementById('fee-student-id').value.trim();
+const amt=document.getElementById('fee-amount').value.trim();
+const tbody=document.querySelector('#fee-table tbody');
+const row=tbody.insertRow();row.innerHTML=`<td>${id}</td><td>${amt}</td>`;
+this.reset();
+});
+document.getElementById('fee-search').addEventListener('input',function(){
+const val=this.value.toLowerCase();
+document.querySelectorAll('#fee-table tbody tr').forEach(r=>r.style.display=[...r.cells].some(c=>c.innerText.toLowerCase().includes(val))?'':'none');
+});
 
-    if (chartInstance) chartInstance.destroy();
-    chartInstance = new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels,
-        datasets: [{
-          label: 'Total Amount (₹) by Method',
-          data,
-          backgroundColor: ['#0d6efd', '#198754', '#ffc107', '#dc3545']
-        }]
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { display: false },
-          title: { display: true, text: 'Payment Method Summary' }
-        }
-      }
-    });
-  }
+// Scholarship
+document.getElementById('scholarship-form').addEventListener('submit',function(e){
+e.preventDefault();
+const name=document.getElementById('scholarship-name').value.trim();
+const amt=document.getElementById('scholarship-amount').value.trim();
+const tbody=document.querySelector('#scholarship-table tbody');
+const row=tbody.insertRow();row.innerHTML=`<td>${name}</td><td>${amt}</td>`;
+this.reset();
+});
+document.getElementById('scholarship-search').addEventListener('input',function(){
+const val=this.value.toLowerCase();
+document.querySelectorAll('#scholarship-table tbody tr').forEach(r=>r.style.display=[...r.cells].some(c=>c.innerText.toLowerCase().includes(val))?'':'none');
+});
 
-  // Role-based access
-  document.addEventListener("DOMContentLoaded", function () {
-    const role = localStorage.getItem("userRole"); // 'admin', 'faculty', 'student'
-    if (role !== "parent" && role !== "faculty" && role !== "student") {
-      document.querySelectorAll("#payment-form input, #payment-form select, #payment-form button").forEach(el => el.disabled = true);
-      const notice = document.createElement("p");
-      notice.textContent = "You have view-only access.";
-      notice.style.color = "red";
-      document.getElementById("payment-form").appendChild(notice);
-    }
-  });
+// Results
+google.charts.load('current',{packages:['corechart']});
+let resultChartData=[['Subject','Marks']];
+document.getElementById('result-form').addEventListener('submit',function(e){
+e.preventDefault();
+const id=document.getElementById('result-student-id').value.trim();
+const sub=document.getElementById('result-subject').value.trim();
+const marks=document.getElementById('result-marks').value.trim().split('/').map(Number);
+const [obt,total]=marks;
+const perc=((obt/total)*100).toFixed(2);
+const status=perc>=35?'Pass':'Fail';
+const tbody=document.querySelector('#result-table tbody');
+const row=tbody.insertRow();
+row.innerHTML=`<td>${id}</td><td>${sub}</td><td>${obt}/${total}</td><td>${perc}%</td><td>${status}</td>`;
+resultChartData.push([sub,obt]);
+drawResultChart();
+this.reset();
+});
+function drawResultChart(){
+const data=google.visualization.arrayToDataTable(resultChartData);
+const chart=new google.visualization.PieChart(document.getElementById('result-chart'));
+chart.draw(data,{title:'Marks Distribution',pieHole:0.4});
+}
+document.getElementById('result-search').addEventListener('input',function(){
+const val=this.value.toLowerCase();
+document.querySelectorAll('#result-table tbody tr').forEach(r=>r.style.display=[...r.cells].some(c=>c.innerText.toLowerCase().includes(val))?'':'none');
+});
+
+// Payments
+let payChart=null; const payData={};
+document.getElementById('payment-form').addEventListener('submit',function(e){
+e.preventDefault();
+const id=document.getElementById('pay-student-id').value.trim();
+const amt=parseFloat(document.getElementById('pay-amount').value).toFixed(2);
+const method=document.getElementById('pay-method').value;
+const ref='REF-'+Date.now();
+const tbody=document.querySelector('#payment-table tbody');
+const row=tbody.insertRow();
+row.innerHTML=`<td>${id}</td><td>${amt}</td><td>${method}</td><td><svg class="barcode" id="barcode-${ref}"></svg></td>`;
+JsBarcode(`#barcode-${ref}`,ref,{format:'CODE128',width:2,height:30,displayValue:false});
+payData[method]=(payData[method]||0)+parseFloat(amt);
+updatePaymentChart();
+this.reset();
+});
+function updatePaymentChart(){
+const ctx=document.getElementById('payment-chart').getContext('2d');
+if(payChart) payChart.destroy();
+payChart=new Chart(ctx,{type:'bar',data:{labels:Object.keys(payData),datasets:[{label:'Amount',data:Object.values(payData),backgroundColor:['#0d6efd','#198754','#ffc107','#dc3545']}]},options:{responsive:true,plugins:{legend:{display:false},title:{display:true,text:'Payment Summary'}}}});
+}
+document.getElementById('pay-search').addEventListener('input',function(){
+const val=this.value.toLowerCase();
+document.querySelectorAll('#payment-table tbody tr').forEach(r=>r.style.display=[...r.cells].some(c=>c.innerText.toLowerCase().includes(val))?'':'none');
+});
 </script>
 </body>
 </html>
